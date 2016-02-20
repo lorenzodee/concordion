@@ -61,13 +61,12 @@ import org.concordion.internal.listener.StylesheetEmbedder;
 import org.concordion.internal.listener.StylesheetLinker;
 import org.concordion.internal.listener.ThrowableRenderer;
 import org.concordion.internal.listener.VerifyRowsResultRenderer;
-import org.concordion.internal.util.Announcer;
 import org.concordion.internal.util.Check;
 import org.concordion.internal.util.IOUtil;
 
 public class ConcordionBuilder implements ConcordionExtender {
 
-    private Announcer<ConcordionBuildListener> listeners = Announcer.to(ConcordionBuildListener.class);
+    private List<ConcordionBuildListener> listeners = new ArrayList<ConcordionBuildListener>();
 
     public static final String NAMESPACE_CONCORDION_2007 = "http://www.concordion.org/2007/concordion";
     private static final String PROPERTY_OUTPUT_DIR = "concordion.output.dir";
@@ -76,7 +75,7 @@ public class ConcordionBuilder implements ConcordionExtender {
     
     private static File baseOutputDir;
     private SpecificationLocator specificationLocator = new ClassNameBasedSpecificationLocator();
-    private Source source = new ClassPathSource();
+    private Source source = null;
     private Target target = null;
     private CommandRegistry commandRegistry = new CommandRegistry();
     private DocumentParser documentParser = new DocumentParser(commandRegistry);
@@ -96,10 +95,9 @@ public class ConcordionBuilder implements ConcordionExtender {
     private List<SpecificationProcessingListener> specificationProcessingListeners = new ArrayList<SpecificationProcessingListener>();
     private List<Class<? extends Throwable>> failFastExceptions = Collections.<Class<? extends Throwable>>emptyList();
     private boolean builtAlready;
-
-    {
-        withThrowableListener(new ThrowableRenderer());
-        
+	private IOUtil ioUtil;
+	
+	{        
         commandRegistry.register("", "specification", specificationCommand);
         
         AssertResultRenderer assertRenderer = new AssertResultRenderer();
@@ -107,12 +105,9 @@ public class ConcordionBuilder implements ConcordionExtender {
         withAssertTrueListener(assertRenderer);
         withAssertFalseListener(assertRenderer);
         withVerifyRowsListener(new VerifyRowsResultRenderer());
-        withRunListener(new RunResultRenderer());
         withDocumentParsingListener(new DocumentStructureImprover());
         withDocumentParsingListener(new MetadataCreator());
-        String stylesheetContent = IOUtil.readResourceAsString(EMBEDDED_STYLESHEET_RESOURCE);
-        withEmbeddedCSS(stylesheetContent);
-    }
+	}
 
     public ConcordionBuilder withSource(Source source) {
         this.source = source;
@@ -191,7 +186,7 @@ public class ConcordionBuilder implements ConcordionExtender {
     }
 
     public ConcordionBuilder withBuildListener(ConcordionBuildListener listener) {
-        listeners.addListener(listener);
+        listeners.add(listener);
         return this;
     }
     
@@ -250,6 +245,15 @@ public class ConcordionBuilder implements ConcordionExtender {
         Check.isFalse(builtAlready, "ConcordionBuilder currently does not support calling build() twice");
         builtAlready = true;
         
+        if (ioUtil == null) {
+        	ioUtil = new IOUtil();
+        }
+        
+        withThrowableListener(new ThrowableRenderer(ioUtil));
+        withRunListener(new RunResultRenderer(ioUtil));
+        String stylesheetContent = ioUtil.readResourceAsString(EMBEDDED_STYLESHEET_RESOURCE);
+        withEmbeddedCSS(stylesheetContent);
+        
         withApprovedCommand(NAMESPACE_CONCORDION_2007, "run", runCommand);
         withApprovedCommand(NAMESPACE_CONCORDION_2007, "execute", executeCommand);
         withApprovedCommand(NAMESPACE_CONCORDION_2007, "set", setCommand);
@@ -267,9 +271,13 @@ public class ConcordionBuilder implements ConcordionExtender {
         withApprovedCommand(NAMESPACE_CONCORDION_2007, "verifyRows", verifyRowsCommand);
         
         withApprovedCommand(NAMESPACE_CONCORDION_2007, "echo", echoCommand);
+        
+        if (source == null) {
+        	source = new ClassPathSource(ioUtil);
+        }
 
         if (target == null) {
-            target = new FileTarget(getBaseOutputDir());
+            target = new FileTarget(getBaseOutputDir(), ioUtil);
         }
         XMLParser xmlParser = new XMLParser();
         
@@ -287,7 +295,7 @@ public class ConcordionBuilder implements ConcordionExtender {
         specificationCommand.addSpecificationListener(exporter);
         specificationCommand.setSpecificationDescriber(exporter);
         
-        listeners.announce().concordionBuilt(new ConcordionBuildEvent(target));
+        announceBuildCompleted();
         
         return new Concordion(specificationLocator, specificationReader, evaluatorFactory);
     }
@@ -310,6 +318,12 @@ public class ConcordionBuilder implements ConcordionExtender {
             }
         }
     }
+    
+    private void announceBuildCompleted() {
+		for (ConcordionBuildListener buildListener : listeners) {
+			buildListener.concordionBuilt(new ConcordionBuildEvent(target));
+		}
+	}
 
     private void addExtensions() {
         String extensionProp = System.getProperty(PROPERTY_EXTENSIONS);
@@ -380,5 +394,10 @@ public class ConcordionBuilder implements ConcordionExtender {
             withEvaluatorFactory(new OgnlEvaluatorFactory());
         }
         return this;
+    }
+    
+    public ConcordionBuilder withIOUtil(IOUtil ioUtil) {
+    	this.ioUtil = ioUtil;
+    	return this;
     }
 }
