@@ -1,24 +1,12 @@
-<html xmlns:concordion="http://www.concordion.org/2007/concordion">
-<link href="../../../../concordion.css" rel="stylesheet" type="text/css" />
-<body>
+# Breadcrumbs
 
-    <h1>Breadcrumbs</h1>
+To make it easier to navigate around the results, and to remove the headache of having to maintain upward links manually, breadcrumbs are automatically added to documents. The package structure provides the breadcrumb structure.
 
-    <p>
-        To make it easier to navigate around the results, and to remove
-        the headache of having to maintain upward links manually, 
-        breadcrumbs are automatically added to documents. 
-        The package structure provides the breadcrumb structure.
-	</p>
+### Example
 
-    <div class="example">        
-    
-        <h3>Example</h3>
+Given the following source files:
 
-        <p>
-            Given the following source files:
-        </p>            
-
+<div>
         <table concordion:execute="setUpResource(#resourceName, #content)">
             <tr>
                 <th concordion:set="#resourceName">Resource Name</th>
@@ -39,11 +27,11 @@
                 <td><pre>&lt;html /&gt;</pre></td>
             </tr>
         </table>
+</div>        
+        
+We expect these breadcrumbs to be generated:
 
-        <p>
-            We expect these breadcrumbs to be generated:
-        </p>
-                
+<div>
         <table concordion:execute="#breadcrumbs = getBreadcrumbsFor(#resourceName)">
             <tr>
                 <th concordion:set="#resourceName">Resource Name</th>
@@ -75,16 +63,9 @@
 </pre></td>
             </tr>
         </table>
+</div>
         
-    </div>                        
+## Further Details
 
-        
-    <h2>Further Details</h2>
-    
-    <ul>
-        <li><a concordion:run="concordion" href="DeterminingBreadcrumbs.html">How are breadcrumbs determined?</a></li>
-        <li><a concordion:run="concordion" href="Wording.html">Where does the text of the breadcrumb come from?</a></li>
-    </ul>
-
-</body>
-</html>
+*   [How are breadcrumbs determined?](DeterminingBreadcrumbs.html)
+*   [Where does the text of the breadcrumb come from?](Wording.html)

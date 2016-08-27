@@ -1,35 +1,19 @@
-<html xmlns:concordion="http://www.concordion.org/2007/concordion">
-<link href="../../../../concordion.css" rel="stylesheet" type="text/css" />
-<body>
-
-    <h1>Determining Breadcrumbs</h1>
+# Determining Breadcrumbs
 	
-	<p>        
-        Only one page in each package acts as the "index page" for that
-        package. The index page is used for breadcrumb links.
-    </p>    
-    
-    <p>
-        The index page is located by capitalising the package
-        name and appending ".html".
-        If no index page is found for a package then no breadcrumb
-        for that package is displayed.
-    </p>
+Only one page in each package acts as the "index page" for that package.
+The index page is used for breadcrumb links.
 
-    <p>          
-        For non-index pages within a package, the index page of the package
-        is included as a breadcrumb link in addition to parent package
-        breadcrumb links.
-    </p>
+The index page is located by capitalising the package name and appending ".html".
+If no index page is found for a package then no breadcrumb for that package is displayed.
 
-    <div class="example">        
-    
-        <h3>Example</h3>
+For non-index pages within a package, the index page of the package is included as a breadcrumb
+link in addition to parent package breadcrumb links.
 
-        <p>
-            Given the following source files:
-        </p>            
+### [Example](- "")
 
+Given the following source files:
+
+<div>
         <table concordion:execute="setUpResource(#resourceName)">
             <tr>
                 <th concordion:set="#resourceName">Filename</th>
@@ -57,11 +41,11 @@
                 <td></td>
             </tr>
         </table>
+</div>        
 
-        <p>
-            We expect these breadcrumbs to be generated:
-        </p>
+We expect these breadcrumbs to be generated:
         
+<div>        
         <table concordion:execute="#text = getBreadcrumbTextFor(#resourceName)">
             <tr>
                 <th concordion:set="#resourceName">Resource Name</th>
@@ -88,8 +72,4 @@
                 <td>Admin &gt; Deleting Users &gt;</td>
             </tr>
         </table>
-        
-    </div>                        
-
-</body>
-</html>
+</div>

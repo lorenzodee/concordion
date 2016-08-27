@@ -1,30 +1,15 @@
-<html xmlns:concordion="http://www.concordion.org/2007/concordion">
-<link href="../../../../concordion.css" rel="stylesheet" type="text/css" />
-<body>
+# Breadcrumb Wording
 
-    <h1>Breadcrumb Wording</h1>
+The words used in the breadcrumb are taken from the contents of the `<title>` if one is present.
+If it is not present, or is empty (does not contain any alphanumeric characters) then the first `<h1>` is used.
+If the `<h1>` is missing or empty, the name of the resource is used and converted from camel-case into properly spaced words.
 
-    <p>
-        The words used in the breadcrumb are taken from the contents
-        of the <code>&lt;title&gt;</code> if one is present.
-        If it is not present, or is empty (does not contain any 
-        alphanumeric characters) then the first <code>&lt;h1&gt;</code> is
-        used. If the <code>&lt;h1&gt;</code> is missing 
-        or empty, the name of the resource is used and converted from
-        camel-case into properly spaced words.
-    </p>
-    
-    <p>
-        The reason for preferring the <code>&lt;title&gt;</code> is that 
-        it is usually written in a more concise way - more suitable for breadcrumbs -
-        than the first level heading.
-    </p>
+The reason for preferring the `<title>` is that it is usually written in a more concise way - more
+suitable for breadcrumbs - than the first level heading.
 
-    
-    <div class="example">        
-    
-        <h3>Examples</h3>
+### [Examples](- "")
 
+<div>
 <table concordion:execute="#text = getBreadcrumbWordingFor(#resourceName, #content)">
     <tr>
         <th concordion:set="#resourceName">Resource Name</th>
@@ -98,9 +83,5 @@
 </pre></td>
         <td>My Camel Case Resource</td>
     </tr>
-</table>            
-            
-    </div>
-
-</body>
-</html>
+</table>
+</div>

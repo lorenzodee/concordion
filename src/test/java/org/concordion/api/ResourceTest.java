@@ -26,7 +26,7 @@ public class ResourceTest extends TestCase {
         assertEquals("../../x/x/file.txt", relativePath("/a/b/c/file.txt", "/a/x/x/file.txt"));
         assertEquals("../file.txt", relativePath("/a/file.txt", "/file.txt"));
         assertEquals("../../../file.txt", relativePath("/a/b/c/file.txt", "/file.txt"));
-        assertEquals("../../../image/concordion-logo.png", relativePath("/spec/concordion/breadcrumbs/Breadcrumbs.html", "/image/concordion-logo.png"));
+        assertEquals("../../../image/concordion-logo.png", relativePath("/spec/concordion/breadcrumbs/Breadcrumbs.md", "/image/concordion-logo.png"));
     }
 
     public void testGivenRelativePathFromOneResourceReturnsOtherResource() {
