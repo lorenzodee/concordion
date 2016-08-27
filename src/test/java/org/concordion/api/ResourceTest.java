@@ -1,24 +1,27 @@
 package org.concordion.api;
 
-import org.concordion.api.Resource;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-public class ResourceTest extends TestCase {
+public class ResourceTest {
 
-    public void testCanTellYouItsParent() throws Exception {
+    @Test
+    public void canTellYouItsParent() throws Exception {
         assertEquals("/", parentPathOf("/abc"));
         assertEquals("/", parentPathOf("/abc/"));
         assertEquals("/abc/", parentPathOf("/abc/def"));
         assertEquals("/abc/", parentPathOf("/abc/def/"));
         assertEquals("/abc/def/", parentPathOf("/abc/def/ghi"));
     }
-    
-    public void testReturnsNullForParentOfRoot() {
+
+    @Test
+    public void returnsNullForParentOfRoot() {
         assertNull(new Resource("/").getParent());
     }
 
-    public void testCanCalculateRelativePaths() throws Exception {
+    @Test
+    public void canCalculateRelativePaths() throws Exception {
         assertEquals("x.html", relativePath("/spec/x.html", "/spec/x.html"));
         assertEquals("blah", relativePath("/spec/", "/spec/blah"));
         assertEquals("../x/", relativePath("/a/b/c/", "/a/b/x/"));
@@ -29,7 +32,8 @@ public class ResourceTest extends TestCase {
         assertEquals("../../../image/concordion-logo.png", relativePath("/spec/concordion/breadcrumbs/Breadcrumbs.md", "/image/concordion-logo.png"));
     }
 
-    public void testGivenRelativePathFromOneResourceReturnsOtherResource() {
+    @Test
+    public void givenRelativePathFromOneResourceReturnsOtherResource() {
         assertEquals("/david.html", getResourceRelativeTo("/blah.html", "david.html"));
         assertEquals("/david.html", getResourceRelativeTo("/", "david.html"));
         assertEquals("/blah/david.html", getResourceRelativeTo("/blah/x", "david.html"));
@@ -45,7 +49,8 @@ public class ResourceTest extends TestCase {
         assertEquals("/blah/docs/css/style.css", getResourceRelativeTo("/blah/docs/work/", "../css/style.css"));
     }
 
-    public void testThrowsExceptionIfRelativePathPointsAboveRoot() {
+    @Test
+    public void throwsExceptionIfRelativePathPointsAboveRoot() {
         try {
             getResourceRelativeTo("/blah/docs/example.html", "../../../style.css");
             fail();
@@ -54,12 +59,37 @@ public class ResourceTest extends TestCase {
                     "evaluates above the root package.", e.getMessage());
         }
     }
-    
+
+    @Test
+    public void leafPackageIsSnakeCase() {
+        assertTrue(resource("/a/b_c/").hasSnakeCaseLeafPackage());
+        assertTrue(resource("/a/b_c/BC").hasSnakeCaseLeafPackage());
+        assertFalse(resource("/").hasSnakeCaseLeafPackage());
+        assertFalse(resource("/a/").hasSnakeCaseLeafPackage());
+        assertFalse(resource("/").hasSnakeCaseLeafPackage());
+        assertFalse(resource("/a/bc/").hasSnakeCaseLeafPackage());
+        assertFalse(resource("/a/bc/BC").hasSnakeCaseLeafPackage());
+    }
+
+    @Test
+    public void snakeLeafPackageToCamelClass() {
+        assertEquals(resource("/a/b_c/"), resource("/a/b_c/").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/a/b_c/BC"), resource("/a/b_c/BC").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/a/b_c/BC.html"), resource("/a/b_c/BC.html").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/a/b_c/BC"), resource("/a/b_c/Whatever").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/a/b_c/BC.suffix"), resource("/a/b_c/Whatever.suffix").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/a_b/AB"), resource("/a_b/Whatever").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/a/b_cd_ef/BCdEf.md"), resource("/a/b_cd_ef/x.md").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/"), resource("/").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/ab/"), resource("/ab/").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/Ab"), resource("/Ab").withCamelCaseClassFromSnakeClassLeafPackage());
+        assertEquals(resource("/ab/CdE"), resource("/ab/CdE").withCamelCaseClassFromSnakeClassLeafPackage());
+    }
+
     private String getResourceRelativeTo(String resourcePath, String relativePath) {
         return new Resource(resourcePath).getRelativeResource(relativePath).getPath();
     }
 
-    
     private String relativePath(String from, String to) {
         return resource(from).getRelativePath(resource(to));
     }
@@ -71,4 +101,5 @@ public class ResourceTest extends TestCase {
     private Resource resource(String path) {
         return new Resource(path);
     }
+
 }

@@ -26,7 +26,7 @@ public class BreadcrumbRenderer implements SpecificationProcessingListener {
     private List<SpecificationType> specificationTypes;
 
     public BreadcrumbRenderer(Source specificationSource, XMLParser xmlParser, List<SpecificationType> specificationTypes) {
-        this.specificationSource = specificationSource;
+        this.specificationSource = new PackageConvertingSourceWrapper(specificationSource);
         this.xmlParser = xmlParser;
         this.specificationTypes = specificationTypes;
     }
@@ -65,7 +65,9 @@ public class BreadcrumbRenderer implements SpecificationProcessingListener {
         while (packageResource != null) {
             for (SpecificationType specificationType : specificationTypes) {
                 Resource indexPageResource = packageResource.getRelativeResource(getIndexPageName(packageResource, specificationType.getTypeSuffix()));
-                if (!indexPageResource.equals(documentResource) && specificationSource.canFind(indexPageResource)) {
+                if (!indexPageResource.equals(documentResource)
+                        && !indexPageResource.withCamelCaseClassFromSnakeClassLeafPackage().equals(documentResource)
+                        && specificationSource.canFind(indexPageResource)) {
                     try {
                         prependBreadcrumb(breadcrumbSpan, createBreadcrumbElement(documentResource, indexPageResource, specificationType.getConverter()));
                     } catch (Exception e) {
@@ -162,4 +164,38 @@ public class BreadcrumbRenderer implements SpecificationProcessingListener {
         return s.replaceAll("[^a-zA-Z0-9]", "").equals("");
     }
 
+    private class PackageConvertingSourceWrapper implements Source {
+        private Source source;
+
+        public PackageConvertingSourceWrapper(Source source) {
+            this.source = source;
+        }
+
+        @Override
+        public InputStream createInputStream(Resource resource) throws IOException {
+            try {
+                InputStream inputStream = source.createInputStream(resource);
+                if (inputStream != null) {
+                    return inputStream;
+                }
+            } catch (Exception ignore) {
+            }
+            return source.createInputStream(resource.withCamelCaseClassFromSnakeClassLeafPackage());
+        }
+
+        @Override
+        public boolean canFind(Resource resource) {
+            return source.canFind(resource) || source.canFind(resource.withCamelCaseClassFromSnakeClassLeafPackage());
+        }
+
+        @Override
+        public String readAsString(InputStream inputStream) throws IOException {
+            return source.readAsString(inputStream);
+        }
+
+        @Override
+        public String readResourceAsString(String resourcePath) {
+            return source.readResourceAsString(resourcePath);
+        }
+    }
 }

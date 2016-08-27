@@ -1,12 +1,15 @@
 package org.concordion.internal;
 
 import java.io.*;
+import java.net.URL;
 
 import org.concordion.api.Resource;
 import org.concordion.api.Source;
 import org.concordion.internal.util.SimpleFormatter;
 
 public class ClassPathSource implements Source {
+
+    private ClassLoader classLoader = ClassPathSource.class.getClassLoader();
 
     public InputStream createInputStream(Resource resource) throws IOException {
         InputStream inputStream = getResourceAsStream(resource.getPath());
@@ -17,16 +20,7 @@ public class ClassPathSource implements Source {
     }
 
     public boolean canFind(Resource resource) {
-        InputStream stream = getResourceAsStream(resource.getPath());
-        if (stream == null) {
-            return false;
-        }
-        try {
-            stream.close();
-        } catch (IOException e) {
-            // Ignore
-        }
-        return true;
+        return getResource(resource.getPath()) != null;
     }
 
     @Override
@@ -52,8 +46,11 @@ public class ClassPathSource implements Source {
     }
 
     private InputStream getResourceAsStream(String resourcePath) {
-        ClassLoader classLoader = ClassPathSource.class.getClassLoader();
-        return classLoader.getResourceAsStream(resourcePath.replaceFirst("/", ""));
+        return classLoader.getResourceAsStream(resourcePath.substring(1));
+    }
+
+    private URL getResource(String resourcePath) {
+        return classLoader.getResource(resourcePath.substring(1));
     }
 
     private String readAsString(Reader reader) throws IOException {
