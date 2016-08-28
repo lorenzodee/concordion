@@ -12,7 +12,7 @@ public class PageFooterRenderer implements SpecificationProcessingListener {
 
     protected static final String CONCORDION_WEBSITE_URL = "http://www.concordion.org";
     private long startMillis;
-    
+
     public PageFooterRenderer() {
     }
 
@@ -32,14 +32,14 @@ public class PageFooterRenderer implements SpecificationProcessingListener {
 
     private void addFooterToDocument(Element rootElement, Resource resource, long millisTaken) {
         Element body = rootElement.getFirstChildElement("body");
-        
+
         if (body != null) {
             Element footer = new Element("div");
             footer.addStyleClass("footer");
 
             addResultsGeneratedBy(footer);
             addDateGeneratedAt(millisTaken, footer);
-            
+
             body.appendChild(footer);
         }
     }

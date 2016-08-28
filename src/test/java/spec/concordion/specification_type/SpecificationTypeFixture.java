@@ -1,8 +1,8 @@
-package spec.concordion.specificationType.html;
+package spec.concordion.specification_type;
 
 import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;
 
 @RunWith(ConcordionRunner.class)
-public class HtmlFixture {
+public class SpecificationTypeFixture {
 }

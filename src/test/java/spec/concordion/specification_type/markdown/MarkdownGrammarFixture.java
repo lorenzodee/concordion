@@ -1,4 +1,4 @@
-package spec.concordion.specificationType.markdown;
+package spec.concordion.specification_type.markdown;
 
 import java.util.HashMap;
 

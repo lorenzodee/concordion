@@ -1,4 +1,4 @@
-package spec.concordion.specificationType.markdown;
+package spec.concordion.specification_type.markdown;
 
 import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;

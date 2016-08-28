@@ -1,4 +1,4 @@
-package spec.concordion.specificationType.html;
+package spec.concordion.specification_type.html;
 
 import org.concordion.integration.junit4.ConcordionRunner;
 import org.junit.runner.RunWith;
