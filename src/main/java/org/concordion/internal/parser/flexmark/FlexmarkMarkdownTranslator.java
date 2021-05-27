@@ -10,12 +10,10 @@ import com.vladsch.flexmark.util.data.MutableDataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import com.vladsch.flexmark.util.misc.Extension;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 
 public class FlexmarkMarkdownTranslator {
-    private final MutableDataHolder options;
     private final Parser parser;
     private final HtmlRenderer htmlRenderer;
 
@@ -23,12 +21,13 @@ public class FlexmarkMarkdownTranslator {
         // Only interrupts an HTML block on a blank line if all tags in the HTML block are closed.
         // Closer to Pegdown HTML block parsing behaviour.
         boolean strictHtml = false;
-        List<Extension> flexmarkExtensionsToAdd = new ArrayList<>();
-        flexmarkExtensionsToAdd.add(FlexmarkConcordionExtension.create());
 
-        options = new MutableDataSet(PegdownOptionsAdapter.flexmarkOptions(strictHtml,
-                Extensions.TABLES | Extensions.STRIKETHROUGH | pegdownExtensions,
-                flexmarkExtensionsToAdd.toArray(new Extension[0])));
+        MutableDataHolder options = new MutableDataSet(PegdownOptionsAdapter.flexmarkOptions(strictHtml,
+                Extensions.TABLES | Extensions.STRIKETHROUGH | pegdownExtensions, new Extension[0]));
+
+        Collection<Extension> extensions = Parser.EXTENSIONS.get(options);
+        extensions.add(FlexmarkConcordionExtension.create());
+        options.set(Parser.EXTENSIONS, extensions);
         if (flexmarkOptions != null) {
             options.setAll(flexmarkOptions);
         }
